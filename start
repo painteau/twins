@@ -19,13 +19,32 @@ echo "🔑 Checking SSL certificates..."
 for DOMAIN in "${DOMAIN_ARRAY[@]}"; do
     CERT_FILE="$CERTS_DIR/$DOMAIN.crt"
     KEY_FILE="$CERTS_DIR/$DOMAIN.key"
+    
     if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
         echo "🛠️ Generating certificate for $DOMAIN..."
+        
+        # Create a temporary OpenSSL config file
+        TEMP_CONF=$(mktemp)
+        cat > "$TEMP_CONF" <<EOL
+[dn]
+CN=$DOMAIN
+[req]
+distinguished_name = dn
+[EXT]
+subjectAltName=DNS:$DOMAIN
+keyUsage=digitalSignature
+extendedKeyUsage=serverAuth
+EOL
+
+        # Generate certificate
         openssl req -x509 -out "$CERT_FILE" -keyout "$KEY_FILE" \
             -newkey rsa:2048 -nodes -sha256 \
             -days 730 \
-            -subj "/CN=$DOMAIN" -extensions EXT -config <( \
-            printf "[dn]\nCN=$DOMAIN\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:$DOMAIN\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+            -subj "/CN=$DOMAIN" -extensions EXT -config "$TEMP_CONF"
+
+        # Remove temporary file
+        rm -f "$TEMP_CONF"
+
         echo "✅ Certificate created: $CERT_FILE"
     else
         echo "✅ Certificate already exists for $DOMAIN."
