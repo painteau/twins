@@ -1,34 +1,41 @@
 #!/bin/bash
 
-# Définition des chemins
+# Define paths
 CERTS_DIR="/home/twins/certs"
 SITES_DIR="/home/twins/sites"
 CONFIG_FILE="/home/twins/twins_config.yaml"
 
-# Vérification que les variables DOMAINS sont définies
+# Check if the DOMAINS variable is set
 if [ -z "$DOMAINS" ]; then
-    echo "Error: DOMAINS environment variable is not set."
+    echo "❌ Error: DOMAINS environment variable is not set."
     exit 1
 fi
 
-# Génération des certificats si non existants
+# Generate certificates if they do not exist
+echo "🔑 Checking SSL certificates..."
 for DOMAIN in $DOMAINS; do
     CERT_FILE="$CERTS_DIR/$DOMAIN.crt"
     KEY_FILE="$CERTS_DIR/$DOMAIN.key"
     if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
+        echo "🛠️ Generating certificate for $DOMAIN..."
         openssl req -x509 -out "$CERT_FILE" -keyout "$KEY_FILE" \
             -newkey rsa:2048 -nodes -sha256 \
             -days 36500 \
             -subj "/CN=$DOMAIN" -extensions EXT -config <( \
             printf "[dn]\nCN=$DOMAIN\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:$DOMAIN\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+        echo "✅ Certificate created: $CERT_FILE"
+    else
+        echo "✅ Certificate already exists for $DOMAIN."
     fi
 done
 
-# Création du fichier de configuration
+# Create the configuration file
+echo "📝 Creating configuration file..."
 echo "listen: :1965" > "$CONFIG_FILE"
 echo "hosts:" >> "$CONFIG_FILE"
 
 for DOMAIN in $DOMAINS; do
+    echo "🔧 Configuring host: $DOMAIN"
     cat >> "$CONFIG_FILE" <<EOL
   $DOMAIN:
     cert: $CERTS_DIR/$DOMAIN.crt
@@ -40,5 +47,5 @@ for DOMAIN in $DOMAINS; do
 EOL
 done
 
-# Lancement du serveur twins
+echo "🚀 Starting the twins server..."
 exec twins --config "$CONFIG_FILE"

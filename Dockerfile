@@ -1,30 +1,26 @@
-# Utilisation d'Ubuntu slim comme base
-FROM ubuntu:latest
+# Using the official Golang latest image
+FROM golang:latest
 
-# Installation des dépendances
+# Installing dependencies
 RUN apt-get update && apt-get install -y \
-    snapd \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Installation de Go via Snap
-RUN snap install go --classic
+# Installing twins
+RUN go install code.rocketnine.space/tslocum/twins@latest
 
-# Installation de twins
-RUN /snap/bin/go install code.rocketnine.space/tslocum/twins@latest
-
-# Création des dossiers nécessaires
+# Creating necessary directories
 RUN mkdir -p /home/twins/certs /home/twins/sites
 
-# Définition des variables d'environnement
+# Defining environment variables
 ENV DOMAINS="example.com example.net"
 
-# Copie du script d'entrée
+# Copying the entry script
 COPY start /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 
-# Exposition du port Gemini
+# Exposing the Gemini port
 EXPOSE 1965
 
-# Définition du point d'entrée
+# Defining the entry point
 CMD ["/usr/local/bin/start"]
