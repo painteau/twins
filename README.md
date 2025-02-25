@@ -40,6 +40,9 @@ docker run -d \
 ### Domains & Language Configuration
 The `DOMAINS` and `LANGS` environment variables must be provided and must have the same number of entries. Each domain in `DOMAINS` should have a corresponding language in `LANGS`, ensuring proper configuration mapping.
 
+### HTTPS serving
+Pages are also available via HTTPS on the same port by default.
+
 ### Per-Domain Stylesheets
 If a `style.css` file is present in the `/home/twins/sites/yourdomain.com/` directory, it will be automatically applied to that specific domain. This allows for customized appearance per domain without manual configuration.
 | Option      | Description | Default |
