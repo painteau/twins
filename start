@@ -32,23 +32,43 @@ for DOMAIN in "${DOMAIN_ARRAY[@]}"; do
         echo "✅ Certificate already exists for $DOMAIN."
     fi
 done
+# Read environment variables
+CACHE_DURATION="${CACHE:-604800}"
+LIST_ENABLED="${LIST:-false}"
+STYLESHEET="${STYLESHEET:-}"
 
 # Create the configuration file
 echo "📝 Creating configuration file..."
 echo "listen: :1965" > "$CONFIG_FILE"
+echo "" >> "$CONFIG_FILE"
+echo "types:" >> "$CONFIG_FILE"
+echo "  .json: application/json; charset=UTF-8" >> "$CONFIG_FILE"
+echo "  .js: application/javascript; charset=UTF-8" >> "$CONFIG_FILE"
+echo "" >> "$CONFIG_FILE"
 echo "hosts:" >> "$CONFIG_FILE"
 
+# Process each domain
+IFS=',' read -r -a LANG_ARRAY <<< "$LANGS"
+INDEX=0
 for DOMAIN in "${DOMAIN_ARRAY[@]}"; do
-    echo "🔧 Configuring host: $DOMAIN"
+    DOMAIN_LANG="${LANG_ARRAY[$INDEX]:-en}" # Default to "en" if not specified
+    LOG_FILE="/home/twins/${DOMAIN}.log"
+
+    echo "🔧 Configuring host: $DOMAIN (lang: $DOMAIN_LANG)"
     cat >> "$CONFIG_FILE" <<EOL
   $DOMAIN:
     cert: $CERTS_DIR/$DOMAIN.crt
     key: $CERTS_DIR/$DOMAIN.key
+    $( [ -n "$STYLESHEET" ] && echo "stylesheet: $STYLESHEET" )
     paths:
       - path: /
         root: $SITES_DIR/$DOMAIN
-        list: true
+        lang: $DOMAIN_LANG
+        log: $LOG_FILE
+        cache: $CACHE_DURATION
+        list: $LIST_ENABLED
 EOL
+    ((INDEX++))
 done
 
 echo "🚀 Starting the twins server..."
