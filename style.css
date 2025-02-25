@@ -1,0 +1,209 @@
+/* Réinitialisation des marges et paddings de tous les éléments */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Corps de la page */
+body {
+    font-family: 'Roboto Mono', monospace;
+    background-color: #fff; /* Fond blanc pour tout le body */
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 20px; /* Padding pour éviter que le contenu touche les bords */
+}
+
+/* Contenu principal */
+#content {
+    max-width: 900px; /* Largeur du contenu fixée à 900px */
+    width: 100%;
+    padding: 20px;
+    background-color: #fff; /* Fond blanc pour #content */
+    border-radius: 8px;
+}
+
+/* Titres principaux */
+h1, h2, h3 {
+    margin: 2.5rem 0 1.5rem;
+    line-height: 1.25;
+    color: #333;
+}
+
+/* Liens */
+a {
+    color: #fa6432;
+    text-decoration: none;
+}
+
+a:hover, a:focus, a:active {
+    text-decoration: underline;
+}
+
+/* Paragraphes */
+p {
+    margin: 1em 0;
+    line-height: 1.5;
+}
+
+p code {
+    background-color: #eee;
+    padding: 0.05em 0.2em;
+    border: 1px solid #ccc;
+}
+
+/* Listes */
+ol, ul {
+    margin: 1em;
+}
+
+ol li ol, ol li ul, ul li ol, ul li ul {
+    margin: 0 2em;
+}
+
+ol li p, ul li p {
+    margin: 0;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+    padding: 0.5em;
+}
+
+/* Citations */
+blockquote {
+    padding-left: 1em;
+    font-style: italic;
+    border-left: solid 1px #fa6432;
+}
+
+/* Tableaux */
+table {
+    font-size: 1rem;
+    text-align: left;
+    margin-bottom: 2em;
+    width: 100%;
+}
+
+table * {
+    border: none;
+}
+
+table tr:nth-child(even) {
+    background-color: rgba(200, 200, 200, 0.2);
+}
+
+table tbody {
+    display: block;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+table td, table th {
+    padding: 0.25em;
+}
+
+/* Bloc de code */
+table, pre.example, .highlight > pre {
+    margin: 1em 0;
+    padding: 1em;
+    overflow: auto;
+    font-size: 0.85rem;
+    font-family: 'Roboto Mono', monospace;
+    border: 1px dashed rgba(250, 100, 50, 0.5);
+}
+
+/* Liste des articles */
+.posts {
+    margin: 0;
+    list-style: none;
+}
+
+.posts .post a {
+    display: flex;
+    padding: 0.5em 0;
+    color: black;
+}
+
+.posts .post a:hover, .posts .post a:focus, .posts .post a:active {
+    text-decoration: none;
+    background: rgba(200, 200, 200, 0.2);
+}
+
+.posts .post date {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.8rem;
+    color: grey;
+}
+
+/* En-tête du site */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Réactivité : adapté aux petits écrans (mobiles) */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 1em;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+    }
+
+    img {
+        max-width: 95%;
+    }
+
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .tags {
+        margin-top: 1.5rem;
+    }
+}
+
+/* Réactivité pour les très petits écrans */
+@media screen and (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+    }
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    p {
+        font-size: 0.9rem;
+    }
+
+    .posts .post a {
+        font-size: 0.9rem;
+    }
+
+    figure {
+        margin: 0.5em 0;
+    }
+}
