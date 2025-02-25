@@ -1,4 +1,5 @@
-FROM golang:latest as builder
+# Build stage
+FROM golang:1.21 AS builder
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -26,8 +27,12 @@ COPY --from=builder /go/bin/twins /usr/local/bin/twins
 COPY start /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 
+# Set environment variables with default values
+ENV CACHE=604800
+ENV LIST=false
+
 # Expose the Gemini port
 EXPOSE 1965
 
 # Define the entry point
-CMD ["/usr/local/bin/start"]
+ENTRYPOINT ["/usr/local/bin/start"]

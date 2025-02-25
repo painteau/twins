@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Define paths
 CERTS_DIR="/home/twins/certs"
 SITES_DIR="/home/twins/sites"
@@ -14,6 +13,13 @@ fi
 
 # Convert DOMAINS into an array (comma-separated)
 IFS=',' read -r -a DOMAIN_ARRAY <<< "$DOMAINS"
+
+# Convert LANGS into an array (comma-separated)
+IFS=',' read -r -a LANG_ARRAY <<< "$LANGS"
+
+# Read environment variables with defaults
+CACHE_DURATION="${CACHE:-604800}"
+LIST_ENABLED="${LIST:-false}"
 
 # Check and generate certificates if necessary
 echo "🔑 Checking SSL certificates..."
@@ -32,10 +38,6 @@ for DOMAIN in "${DOMAIN_ARRAY[@]}"; do
         echo "✅ Certificate already exists for $DOMAIN."
     fi
 done
-# Read environment variables
-CACHE_DURATION="${CACHE:-604800}"
-LIST_ENABLED="${LIST:-false}"
-STYLESHEET="${STYLESHEET:-}"
 
 # Create the configuration file
 echo "📝 Creating configuration file..."
@@ -48,18 +50,25 @@ echo "" >> "$CONFIG_FILE"
 echo "hosts:" >> "$CONFIG_FILE"
 
 # Process each domain
-IFS=',' read -r -a LANG_ARRAY <<< "$LANGS"
 INDEX=0
 for DOMAIN in "${DOMAIN_ARRAY[@]}"; do
     DOMAIN_LANG="${LANG_ARRAY[$INDEX]:-en}" # Default to "en" if not specified
     LOG_FILE="/home/twins/${DOMAIN}.log"
+    STYLESHEET_FILE="$SITES_DIR/$DOMAIN/style.css"
+
+    # Check if a stylesheet exists
+    if [ -f "$STYLESHEET_FILE" ]; then
+        STYLESHEET_ENTRY="stylesheet: $STYLESHEET_FILE"
+    else
+        STYLESHEET_ENTRY=""
+    fi
 
     echo "🔧 Configuring host: $DOMAIN (lang: $DOMAIN_LANG)"
     cat >> "$CONFIG_FILE" <<EOL
   $DOMAIN:
     cert: $CERTS_DIR/$DOMAIN.crt
     key: $CERTS_DIR/$DOMAIN.key
-    $( [ -n "$STYLESHEET" ] && echo "stylesheet: $STYLESHEET" )
+    $STYLESHEET_ENTRY
     paths:
       - path: /
         root: $SITES_DIR/$DOMAIN
