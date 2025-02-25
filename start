@@ -18,8 +18,15 @@ IFS=',' read -r -a DOMAIN_ARRAY <<< "$DOMAINS"
 IFS=',' read -r -a LANG_ARRAY <<< "$LANGS"
 
 # Read environment variables with defaults
-CACHE_DURATION="${CACHE:-604800}"
+CACHE_DURATION="${CACHE:-86400}"
 LIST_ENABLED="${LIST:-false}"
+
+# Check if both arrays have the same length
+if [ "${#DOMAIN_ARRAY[@]}" -ne "${#LANG_ARRAY[@]}" ]; then
+    echo "❌ Error: DOMAINS and LANGS must have the same number of entries."
+    exit 1
+fi
+
 
 # Check and generate certificates if necessary
 echo "🔑 Checking SSL certificates..."

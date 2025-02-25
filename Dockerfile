@@ -28,7 +28,7 @@ COPY start /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 
 # Set environment variables with default values
-ENV CACHE=604800
+ENV CACHE=86400
 ENV LIST=false
 
 # Expose the Gemini port
