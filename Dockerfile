@@ -1,5 +1,5 @@
 # Utilisation d'Ubuntu slim comme base
-FROM ubuntu:slim
+FROM ubuntu:latest
 
 # Installation des dépendances
 RUN apt-get update && apt-get install -y \
