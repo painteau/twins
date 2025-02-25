@@ -67,7 +67,7 @@ for DOMAIN in "${DOMAIN_ARRAY[@]}"; do
     if [ -f "$STYLESHEET_FILE" ]; then
         STYLESHEET_ENTRY="stylesheet: $STYLESHEET_FILE"
     else
-        STYLESHEET_ENTRY=""
+        STYLESHEET_ENTRY="stylesheet: /home/twins/style.css"
     fi
 
     echo "🔧 Configuring host: $DOMAIN (lang: $DOMAIN_LANG)"

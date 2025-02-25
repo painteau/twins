@@ -23,8 +23,11 @@ RUN mkdir -p /home/twins/certs /home/twins/sites
 # Copy twins binary from the build stage
 COPY --from=builder /go/bin/twins /usr/local/bin/twins
 
-# Copy the startup script
+
+# Copy the startup script && CSS
 COPY start /usr/local/bin/start
+COPY style.css /home/twins/style.css
+
 RUN chmod +x /usr/local/bin/start
 
 # Set environment variables with default values
