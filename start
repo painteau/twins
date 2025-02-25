@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Définition des chemins
+CERTS_DIR="/home/twins/certs"
+SITES_DIR="/home/twins/sites"
+CONFIG_FILE="/home/twins/twins_config.yaml"
+
+# Vérification que les variables DOMAINS sont définies
+if [ -z "$DOMAINS" ]; then
+    echo "Error: DOMAINS environment variable is not set."
+    exit 1
+fi
+
+# Génération des certificats si non existants
+for DOMAIN in $DOMAINS; do
+    CERT_FILE="$CERTS_DIR/$DOMAIN.crt"
+    KEY_FILE="$CERTS_DIR/$DOMAIN.key"
+    if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
+        openssl req -x509 -out "$CERT_FILE" -keyout "$KEY_FILE" \
+            -newkey rsa:2048 -nodes -sha256 \
+            -days 36500 \
+            -subj "/CN=$DOMAIN" -extensions EXT -config <( \
+            printf "[dn]\nCN=$DOMAIN\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:$DOMAIN\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+    fi
+done
+
+# Création du fichier de configuration
+echo "listen: :1965" > "$CONFIG_FILE"
+echo "hosts:" >> "$CONFIG_FILE"
+
+for DOMAIN in $DOMAINS; do
+    cat >> "$CONFIG_FILE" <<EOL
+  $DOMAIN:
+    cert: $CERTS_DIR/$DOMAIN.crt
+    key: $CERTS_DIR/$DOMAIN.key
+    paths:
+      - path: /
+        root: $SITES_DIR/$DOMAIN
+        list: true
+EOL
+done
+
+# Lancement du serveur twins
+exec twins --config "$CONFIG_FILE"
