@@ -1,26 +1,33 @@
-# Using the official Golang latest image
-FROM golang:latest
+FROM golang:latest as builder
 
-# Installing dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Installing twins
+# Download and compile twins
 RUN go install code.rocketnine.space/tslocum/twins@latest
 
-# Creating necessary directories
+# Final stage (lightweight production image)
+FROM debian:stable-slim
+
+# Install required dependencies
+RUN apt-get update && apt-get install -y \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create necessary directories
 RUN mkdir -p /home/twins/certs /home/twins/sites
 
-# Defining environment variables
-ENV DOMAINS="example.com example.net"
+# Copy twins binary from the build stage
+COPY --from=builder /go/bin/twins /usr/local/bin/twins
 
-# Copying the entry script
+# Copy the startup script
 COPY start /usr/local/bin/start
 RUN chmod +x /usr/local/bin/start
 
-# Exposing the Gemini port
+# Expose the Gemini port
 EXPOSE 1965
 
-# Defining the entry point
+# Define the entry point
 CMD ["/usr/local/bin/start"]

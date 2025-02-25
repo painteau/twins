@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Define paths
 CERTS_DIR="/home/twins/certs"
@@ -11,16 +11,19 @@ if [ -z "$DOMAINS" ]; then
     exit 1
 fi
 
-# Generate certificates if they do not exist
+# Convert DOMAINS into an array (comma-separated)
+IFS=',' read -r -a DOMAIN_ARRAY <<< "$DOMAINS"
+
+# Check and generate certificates if necessary
 echo "🔑 Checking SSL certificates..."
-for DOMAIN in $DOMAINS; do
+for DOMAIN in "${DOMAIN_ARRAY[@]}"; do
     CERT_FILE="$CERTS_DIR/$DOMAIN.crt"
     KEY_FILE="$CERTS_DIR/$DOMAIN.key"
     if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
         echo "🛠️ Generating certificate for $DOMAIN..."
         openssl req -x509 -out "$CERT_FILE" -keyout "$KEY_FILE" \
             -newkey rsa:2048 -nodes -sha256 \
-            -days 36500 \
+            -days 730 \
             -subj "/CN=$DOMAIN" -extensions EXT -config <( \
             printf "[dn]\nCN=$DOMAIN\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:$DOMAIN\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
         echo "✅ Certificate created: $CERT_FILE"
@@ -34,7 +37,7 @@ echo "📝 Creating configuration file..."
 echo "listen: :1965" > "$CONFIG_FILE"
 echo "hosts:" >> "$CONFIG_FILE"
 
-for DOMAIN in $DOMAINS; do
+for DOMAIN in "${DOMAIN_ARRAY[@]}"; do
     echo "🔧 Configuring host: $DOMAIN"
     cat >> "$CONFIG_FILE" <<EOL
   $DOMAIN:
